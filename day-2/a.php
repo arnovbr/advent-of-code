@@ -1,6 +1,6 @@
 <?php
 
-$depthsList = explode("\n", file_get_contents('input.txt'));
+$depthsList = explode("\n", file_get_contents('day-2/input.txt'));
 $horizontalPosition = 0;
 $depth = 0;
 foreach ($depthsList as $key => $move) {
