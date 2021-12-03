@@ -1,14 +1,9 @@
 <?php
 
-$depthsList = explode("\n", file_get_contents('day-2/input.txt'));
-$horizontalPosition = 0;
-$depth = 0;
-$aim = 0;
+$depthsList = file('day-2/input.txt');
+$horizontalPosition = $depth = $aim = 0;
 foreach ($depthsList as $key => $move) {
-    if (empty($move)) {
-        continue;
-    }
-    list($direction, $steps) = explode(' ', $move);
+    [$direction, $steps] = explode(' ', $move);
     switch ($direction) {
         case $direction === 'forward':
             $horizontalPosition += $steps;
@@ -23,4 +18,3 @@ foreach ($depthsList as $key => $move) {
     }
 }
 echo $depth * $horizontalPosition;
-
