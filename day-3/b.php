@@ -6,37 +6,26 @@ $oxygenRating = $CO2Rating = array_chunk(
     str_split(str_replace("\n", "", $fileContent)),
     $binaryColumns
 );
-$bitCriteriaOxygen = $bitCriteriaCO2 = 0;
 
-foreach ($oxygenRating[0] as $key => $column) {
-    $oxygenRatingsCount = count($oxygenRating);
-    if ($oxygenRatingsCount > 1) {
-        $mostCommonOxygenBit = array_sum(array_column($oxygenRating, $key)) / $oxygenRatingsCount;
-        $bitCriteriaOxygen = ($mostCommonOxygenBit > 0.5) ? 1 : 0;
-        if ($mostCommonOxygenBit === 0.5) {
-            $bitCriteriaOxygen = 1;
-        }
-        $oxygenRating = array_filter(
-            $oxygenRating,
-            static function ($rating) use ($key, $bitCriteriaOxygen) {
-                return (int)$rating[$key] === $bitCriteriaOxygen;
+function calculateO2CO2(array $rating, int $key, bool $oxygen): array
+{
+    $count = count($rating);
+    if ($count > 1) {
+        $mostCommonBit = array_sum(array_column($rating, $key)) / $count;
+        $bitCriteria = ($mostCommonBit >= 0.5) ? (int)$oxygen : (int)!$oxygen;
+        return array_filter(
+            $rating,
+            static function ($rating) use ($key, $bitCriteria) {
+                return (int)$rating[$key] === $bitCriteria;
             }
         );
     }
-    $CO2RatingsCount = count($CO2Rating);
-    if ($CO2RatingsCount > 1) {
-        $mostCommonCO2Bit = array_sum(array_column($CO2Rating, $key)) / $CO2RatingsCount;
-        $bitCriteriaCO2 = ($mostCommonCO2Bit > 0.5) ? 0 : 1;
-        if ($mostCommonCO2Bit === 0.5) {
-            $bitCriteriaCO2 = 0;
-        }
-        $CO2Rating = array_filter(
-            $CO2Rating,
-            static function ($rating) use ($key, $bitCriteriaCO2) {
-                return (int)$rating[$key] === $bitCriteriaCO2;
-            },
-            ARRAY_FILTER_USE_BOTH
-        );
-    }
+    return $rating;
 }
+
+foreach ($oxygenRating[0] as $key => $column) {
+    $oxygenRating = calculateO2CO2($oxygenRating, $key, true);
+    $CO2Rating = calculateO2CO2($CO2Rating, $key, false);
+}
+
 echo bindec(implode(array_values($oxygenRating)[0])) * bindec(implode(array_values($CO2Rating)[0]));
